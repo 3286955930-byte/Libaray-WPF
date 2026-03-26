@@ -1,0 +1,83 @@
+<UserControl x:Class="LibrarySystem.Views.OverdueRecordsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:LibrarySystem.ViewModels"
+             xmlns:converters="clr-namespace:LibrarySystem.Converters">
+    
+    <UserControl.DataContext>
+        <vm:OverdueRecordsViewModel/>
+    </UserControl.DataContext>
+    
+    <UserControl.Resources>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Background="#ECF0F1" Padding="15,10" Margin="0,0,0,10">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚠️ 逾期记录列表" 
+                               FontSize="16" 
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <Button Content="🔄 刷新" 
+                            Command="{Binding RefreshCommand}"
+                            Background="#3498DB" 
+                            Foreground="White"
+                            Padding="15,8"
+                            Margin="20,0,0,0"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding OverdueRecords}"
+                  SelectedItem="{Binding SelectedRecord}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  GridLinesVisibility="Horizontal"
+                  AlternatingRowBackground="#FFF5F5"
+                  HeadersVisibility="Column"
+                  BorderThickness="0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="图书名称" Binding="{Binding BookTitle}" Width="*"/>
+                <DataGridTextColumn Header="读者姓名" Binding="{Binding ReaderName}" Width="100"/>
+                <DataGridTextColumn Header="借阅日期" Binding="{Binding BorrowDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                <DataGridTextColumn Header="到期日期" Binding="{Binding DueDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                <DataGridTextColumn Header="逾期天数" Binding="{Binding OverdueDays}" Width="80"/>
+                <DataGridTemplateColumn Header="操作" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="归还" 
+                                    Command="{Binding DataContext.ReturnCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    CommandParameter="{Binding}"
+                                    Background="#E74C3C"
+                                    Foreground="White"
+                                    Padding="10,5"
+                                    BorderThickness="0"
+                                    Cursor="Hand"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        
+        <TextBlock Grid.Row="1" 
+                   Text="暂无逾期记录 ✅" 
+                   FontSize="18" 
+                   Foreground="Gray"
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center"
+                   Visibility="{Binding OverdueRecords.Count, Converter={StaticResource CountToVisibilityConverter}}"/>
+    </Grid>
+</UserControl>
